@@ -8,7 +8,7 @@ from sklearn.decomposition import PCA
 
 # App Title
 st.set_page_config(page_title="Chipata OSR Analysis Dashboard", layout="wide")
-st.subheader("Analyzing fees and levies over multiple years with insights")
+st.subheader("Chipata OSR Analysis Dashboard")
 
 # Load specific CSV files for each year and combine them into one DataFrame
 data = []
