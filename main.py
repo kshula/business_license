@@ -5,45 +5,20 @@ import os
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.decomposition import PCA
-from dotenv import load_dotenv
 
-# Load environment variables
-load_dotenv()
-
-# Retrieve username and password from environment variables
-USERNAME = os.getenv("APP_USERNAME")
-PASSWORD = os.getenv("APP_PASSWORD")
 
 # Set page configuration for wide layout
 st.set_page_config(page_title="Business License Analysis Dashboard", layout="wide")
-# Login functionality
-def login():
-    """Displays login form and validates credentials."""
-    st.subheader("Login")
-    username = st.text_input("Username")
-    password = st.text_input("Password", type="password")
-    if st.button("Login"):
-        if username == USERNAME and password == PASSWORD:
-            st.session_state["logged_in"] = True
-            st.success("Login successful!")
-        else:
-            st.error("Invalid username or password")
 
-# Check if the user is logged in
-if "logged_in" not in st.session_state:
-    st.session_state["logged_in"] = False
 
-if not st.session_state["logged_in"]:
-    login()
-else:
-    st.title("Chipata Council OSR")
-    st.subheader("Analyzing levies and fees data over multiple years with insights")
+st.title("Chipata Council OSR")
+st.subheader("Analyzing levies and fees data over multiple years with insights")
 
     # Load specific CSV files for each year and combine them into one DataFrame
-    data = []
-    for year in ['2021', '2022', '2023', '2024']:
-        filename = f"{year}.csv"
-        if os.path.exists(filename):
+data = []
+for year in ['2021', '2022', '2023', '2024']:
+    filename = f"{year}.csv"
+    if os.path.exists(filename):
             try:
                 df = pd.read_csv(filename)
                 df['Year'] = int(year)
