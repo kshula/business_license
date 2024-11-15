@@ -7,8 +7,8 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.decomposition import PCA
 
 # App Title
-st.title("Business License Analysis Dashboard")
-st.subheader("Analyze business license data over multiple years with insights by Description")
+st.title("Chipata OSR Analysis Dashboard")
+st.subheader("Analyzing fees and levies over multiple years with insights")
 
 # Load specific CSV files for each year and combine them into one DataFrame
 data = []
