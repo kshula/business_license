@@ -2,4 +2,4 @@ streamlit
 pandas
 plotly
 scikit-learn
-dotenv
+python-dotenv
