@@ -27,3 +27,4 @@ The remaining rules or formalities are placed into a permanent registry where us
 
 
 Regulatory Impact Assessment (RIA) and other permanent good regulation tools.
+
