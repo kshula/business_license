@@ -100,12 +100,8 @@ if data:
     top_descriptions = combined_data.groupby("Description")["Amount"].sum().sort_values(ascending=False)
     top_descriptions = top_descriptions.reset_index()
     top_descriptions['Percentage'] = (top_descriptions['Amount'] / total_revenue_sum * 100).round(2)
-    st.write(top_descriptions.head(10))
-
-    # Bottom Revenue-Contributing Descriptions
-    st.subheader("Bottom Revenue-Contributing Levies and Fees")
-    bottom_descriptions = top_descriptions.tail(10)
-    st.write(bottom_descriptions)
+    st.write(top_descriptions)
+    
 
 else:
     st.warning("No data found. Please ensure 2021.csv, 2022.csv, 2023.csv, and 2024.csv are in the root directory.")
