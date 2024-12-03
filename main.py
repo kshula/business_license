@@ -88,3 +88,4 @@ if data:
 
 else:
     st.warning("No data found. Please ensure 2021.csv, 2022.csv, 2023.csv, and 2024.csv are in the root directory.")
+
