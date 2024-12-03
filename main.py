@@ -34,74 +34,57 @@ if data:
     combined_data['Amount'] = pd.to_numeric(combined_data['Amount'], errors='coerce')
     combined_data.dropna(subset=['Amount'], inplace=True)
 
-    # Create columns
+    # Dropdown for selecting the year
+    selected_year = st.selectbox("Select Year to View Revenue Leading Descriptions", 
+                                 options=sorted(combined_data['Year'].unique()))
+
+    # Filter data based on the selected year
+    filtered_data = combined_data[combined_data['Year'] == selected_year]
+
+    # Display top revenue-contributing descriptions for the selected year
+    st.subheader(f"Top Revenue-Contributing Descriptions for {selected_year}")
+    revenue_by_description = (filtered_data.groupby("Description")["Amount"]
+                               .sum()
+                               .sort_values(ascending=False)
+                               .reset_index())
+    revenue_by_description['Percentage'] = (revenue_by_description['Amount'] / 
+                                            revenue_by_description['Amount'].sum() * 100).round(2)
+    st.write(revenue_by_description)
+
+    # Create columns for visualizations
     col1, col2 = st.columns(2)
 
     with col1:
-        # Total Revenue from Licenses per Year (Ranked Top-Down)
-        total_revenue = combined_data.groupby("Year")["Amount"].sum().sort_values(ascending=False)
-        fig_total_revenue = px.bar(total_revenue, x=total_revenue.index, y=total_revenue.values,
-                                   labels={'x': 'Year', 'y': 'Total Revenue'},
-                                   title="Total Revenue from levies and fees by Year")
-        st.plotly_chart(fig_total_revenue)
-
-        # Revenue Trend Analysis by Description (Ranked Top-Down)
-        revenue_by_description = combined_data.groupby(['Year', 'Description'])["Amount"].sum().reset_index()
-        revenue_by_description = revenue_by_description.sort_values(by="Amount", ascending=False)
-        fig_revenue_description = px.bar(revenue_by_description, x='Year', y='Amount', color='Description', barmode='stack',
-                                         labels={'Amount': 'Revenue', 'Year': 'Year', 'Description': 'Description'},
-                                         title="Revenue Breakdown by fees per Year")
-        st.plotly_chart(fig_revenue_description)
+        # Bar chart of revenue breakdown by description for the selected year
+        fig_revenue_desc = px.bar(revenue_by_description, 
+                                  x="Description", 
+                                  y="Amount", 
+                                  title=f"Revenue Breakdown by Description for {selected_year}",
+                                  labels={"Amount": "Revenue", "Description": "Description"})
+        st.plotly_chart(fig_revenue_desc)
 
     with col2:
-        # Total Number of Licenses per Year
-        license_count = combined_data.groupby("Year").size()
-        fig_license_count = px.bar(license_count, x=license_count.index, y=license_count.values,
-                                   labels={'x': 'Year', 'y': 'Total Licenses'},
-                                   title="Total Number of Levies and fees by Year")
-        st.plotly_chart(fig_license_count)
-
-        # Revenue Trends by Description Over Time
-        fig_trend_desc = px.line(combined_data, x="Year", y="Amount", color="Description",
-                                 title="Revenue Trends by fees Over Time")
-        st.plotly_chart(fig_trend_desc)
-
-    # K-Nearest Neighbors (KNN) Analysis by Description
-    st.header("K-Nearest Neighbors Analysis on Licenses, Levies and Fees")
-    year_filter = st.selectbox("Select Year for KNN Plot", options=sorted(combined_data['Year'].unique(), reverse=True))
-    filtered_data = combined_data[combined_data['Year'] == year_filter]
-
-    label_encoder = LabelEncoder()
-    filtered_data['Description_Encoded'] = label_encoder.fit_transform(filtered_data['Description'])
-
-    knn_data = filtered_data[['Amount', 'Description_Encoded']].dropna()
-    scaler = StandardScaler()
-    knn_scaled = scaler.fit_transform(knn_data)
-
-    pca = PCA(n_components=2)
-    knn_pca = pca.fit_transform(knn_scaled)
-
-    k = st.slider("Select Number of Neighbors (K)", min_value=1, max_value=10, value=3)
-    knn_model = KNeighborsClassifier(n_neighbors=k)
-    knn_model.fit(knn_pca, filtered_data['Description_Encoded'])
-
-    knn_fig = px.scatter(x=knn_pca[:, 0], y=knn_pca[:, 1], color=filtered_data['Description'],
-                         labels={'x': 'PCA Dimension 1', 'y': 'PCA Dimension 2'},
-                         title=f"KNN Clustering of Licenses (Year: {year_filter})")
-    knn_fig.update_traces(marker=dict(size=8, opacity=0.6))
-    st.plotly_chart(knn_fig)
+        # Pie chart of revenue percentage distribution by description
+        fig_pie = px.pie(revenue_by_description, 
+                         names="Description", 
+                         values="Amount", 
+                         title=f"Revenue Percentage Distribution by Description for {selected_year}")
+        st.plotly_chart(fig_pie)
 
     # Insight Summary and Analysis
     st.header("Revenue Insights")
-    total_revenue_sum = combined_data['Amount'].sum()
+    total_revenue = combined_data['Amount'].sum()
+    st.write(f"**Total Revenue Across All Years:** {total_revenue}")
 
-    # Top Revenue-Contributing Descriptions
-    st.subheader("Top Revenue-Contributing Levies and Fees")
-    top_descriptions = combined_data.groupby("Description")["Amount"].sum().sort_values(ascending=False)
-    top_descriptions = top_descriptions.reset_index()
-    top_descriptions['Percentage'] = (top_descriptions['Amount'] / total_revenue_sum * 100).round(2)
-    st.write(top_descriptions)
-    
+    # Overall top revenue-contributing descriptions
+    st.subheader("Overall Top Revenue-Contributing Descriptions")
+    overall_revenue_by_desc = (combined_data.groupby("Description")["Amount"]
+                               .sum()
+                               .sort_values(ascending=False)
+                               .reset_index())
+    overall_revenue_by_desc['Percentage'] = (overall_revenue_by_desc['Amount'] / 
+                                             combined_data['Amount'].sum() * 100).round(2)
+    st.write(overall_revenue_by_desc)
 
 else:
     st.warning("No data found. Please ensure 2021.csv, 2022.csv, 2023.csv, and 2024.csv are in the root directory.")
